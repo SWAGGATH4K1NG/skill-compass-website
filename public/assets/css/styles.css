@@ -1,3 +1,11 @@
+/* Self-hosted Geist (latin subset, from @fontsource/geist-sans and @fontsource/geist-mono). */
+@font-face { font-family: "Geist"; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/geist-sans-400.woff2) format("woff2"); }
+@font-face { font-family: "Geist"; font-style: normal; font-weight: 500; font-display: swap; src: url(../fonts/geist-sans-500.woff2) format("woff2"); }
+@font-face { font-family: "Geist"; font-style: normal; font-weight: 600; font-display: swap; src: url(../fonts/geist-sans-600.woff2) format("woff2"); }
+@font-face { font-family: "Geist"; font-style: normal; font-weight: 700; font-display: swap; src: url(../fonts/geist-sans-700.woff2) format("woff2"); }
+@font-face { font-family: "Geist Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/geist-mono-400.woff2) format("woff2"); }
+@font-face { font-family: "Geist Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url(../fonts/geist-mono-500.woff2) format("woff2"); }
+
 /* Dark is the default theme; light is opt-in via the nav toggle. */
 :root {
   --bg: #0a0a0b;
@@ -70,6 +78,7 @@ h3 { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
 p { margin: 0; }
 .lede { color: var(--muted); max-width: 60ch; margin-top: 18px; font-size: 1.1rem; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* Nav */
 nav.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
@@ -78,16 +87,18 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 /* Brand mark: a tilted compass needle, accent tip pointing north-east. */
 .mark { width: 26px; height: 26px; flex-shrink: 0; color: var(--accent); transform: rotate(35deg); }
 /* Active section: accent line under the nav link, sitting on the nav's bottom border. */
-.nav-links a[href^="#"] { position: relative; }
-.nav-links a[href^="#"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -21px; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s cubic-bezier(.16, 1, .3, 1); }
-.nav-links a.is-active { color: var(--text); }
+.nav-links a[href^="#"]:not(.btn) { position: relative; }
+.nav-links a[href^="#"]:not(.btn)::after { content: ""; position: absolute; left: 0; right: 0; bottom: -21px; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s cubic-bezier(.16, 1, .3, 1); }
+.nav-links a.is-active:not(.btn) { color: var(--text); }
+/* The Install button marks its section with a soft accent glow instead of a line. */
+.nav-install.is-active { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent), 0 6px 28px -2px color-mix(in srgb, var(--accent) 55%, transparent); }
 .nav-links a.is-active::after { transform: scaleX(1); }
 .nav-links { display: flex; gap: 24px; align-items: center; font-size: 0.93rem; color: var(--muted); }
 .nav-links a { text-decoration: none; }
 .nav-links a:not(.btn):hover { color: var(--text); }
 .btn.btn-sm { padding: 7px 14px; font-size: 0.88rem; }
 /* Nav Install appears once the hero buttons scroll out of view; always shown on small screens. */
-.nav-install { margin-left: 4px; transition: opacity .2s ease, transform .2s ease, visibility .2s; }
+.btn.nav-install { margin-left: 4px; transition: opacity .2s ease, transform .2s ease, visibility .2s, box-shadow .3s ease, background-color .15s ease; }
 .js .nav-install:not(.is-shown) { opacity: 0; visibility: hidden; transform: translateY(-4px); }
 @media (max-width: 760px) { .js .nav-install:not(.is-shown) { opacity: 1; visibility: visible; transform: none; } }
 .icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; margin: 0 -8px; border: 0; border-radius: var(--r-control); background: transparent; color: var(--muted); font-size: 20px; cursor: pointer; }
@@ -187,6 +198,8 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .c-code p { color: var(--code-faint); }
 .c-code code { margin-top: auto; padding-top: 16px; font-size: 0.82rem; color: var(--code-err); }
 .c-soft { background: var(--surface-2); }
+/* In light mode the code cell and this one share a grey; a dashed outline marks "nothing fits yet". */
+:root[data-theme="light"] .c-soft { background: transparent; border-style: dashed; border-color: color-mix(in srgb, var(--faint) 45%, transparent); }
 @media (max-width: 920px) { .bento { grid-template-columns: 1fr 1fr; } .c-main { grid-column: span 2; grid-row: auto; } .c-main h3 { margin-top: 24px; } }
 @media (max-width: 640px) { .bento { grid-template-columns: 1fr; } .c-main { grid-column: auto; } }
 

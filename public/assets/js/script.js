@@ -18,29 +18,36 @@ const demoBtns = [...document.querySelectorAll('.ask-btn')];
 const demoOut = document.getElementById('demo-out');
 const demoQ = document.getElementById('demo-q');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const demoStatus = document.getElementById('demo-status');
 let demoTimer;
-function runDemo(btn) {
+// Screen readers get the whole answer once it has finished printing, not line by line.
+function runDemo(btn, announce) {
   demoBtns.forEach((b) => b.setAttribute('aria-pressed', b === btn));
   demoQ.textContent = btn.textContent;
-  const lines = document.getElementById(btn.dataset.demo).innerHTML.split('\n');
+  const template = document.getElementById(btn.dataset.demo);
+  const lines = template.innerHTML.split('\n');
+  const done = () => {
+    if (announce) demoStatus.textContent = `${btn.textContent} ${template.content.textContent}`;
+  };
   clearInterval(demoTimer);
+  demoStatus.textContent = '';
   if (reduceMotion) {
     demoOut.innerHTML = lines.join('\n');
+    done();
     return;
   }
   demoOut.innerHTML = '';
-  demoOut.setAttribute('aria-busy', 'true');
   let i = 0;
   demoTimer = setInterval(() => {
     demoOut.insertAdjacentHTML('beforeend', (i ? '\n' : '') + lines[i]);
     i += 1;
     if (i === lines.length) {
       clearInterval(demoTimer);
-      demoOut.removeAttribute('aria-busy');
+      done();
     }
   }, 55);
 }
-demoBtns.forEach((btn) => btn.addEventListener('click', () => runDemo(btn)));
+demoBtns.forEach((btn) => btn.addEventListener('click', () => runDemo(btn, true)));
 if (!reduceMotion) setTimeout(() => runDemo(demoBtns[0]), 500);
 
 // Nav Install button: show it once the hero buttons have scrolled away
@@ -86,8 +93,10 @@ function select(tab) {
 tabs.forEach((tab, i) => {
   tab.addEventListener('click', () => select(tab));
   tab.addEventListener('keydown', (e) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    const moves = { ArrowRight: i + 1, ArrowLeft: i - 1 + tabs.length, Home: 0, End: tabs.length - 1 };
+    if (!(e.key in moves)) return;
+    e.preventDefault();
+    const next = tabs[moves[e.key] % tabs.length];
     select(next);
     next.focus();
   });
