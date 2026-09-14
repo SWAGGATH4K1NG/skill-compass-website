@@ -72,6 +72,7 @@ a { color: inherit; }
 code, pre { font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace; }
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 section { padding: 112px 0; }
+@media (max-width: 640px) { section { padding: 72px 0; } }
 h1, h2, h3 { margin: 0; line-height: 1.1; }
 h2 { font-size: clamp(2rem, 4.2vw, 3.2rem); font-weight: 650; letter-spacing: -0.035em; max-width: 22ch; }
 h3 { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
@@ -182,7 +183,7 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .side pre { margin: 0; padding: 18px; font-size: 0.8rem; line-height: 1.6; white-space: pre-wrap; flex: 1; }
 .side ul { margin: 0; padding: 14px 18px 18px 36px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
 .side li + li { margin-top: 4px; }
-@media (max-width: 860px) { .vs { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .vs { grid-template-columns: 1fr; } .vs > * { min-width: 0; } .side pre { white-space: pre; overflow-x: auto; font-size: 0.75rem; } }
 
 /* Capabilities: one lead cell plus four supporting cells */
 .bento { display: grid; grid-template-columns: 1.2fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; margin-top: 56px; }
@@ -218,12 +219,15 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .eval .score { font-family: "Geist Mono", monospace; font-size: 0.88rem; white-space: nowrap; color: var(--faint); min-width: 12ch; text-align: right; }
 .eval .score b { color: var(--accent); font-weight: 500; }
 @media (max-width: 860px) { .evals { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .eval { grid-template-columns: 1fr auto; } .eval .bar { display: none; } }
 .method { margin-top: 48px; max-width: 78ch; color: var(--muted); font-size: 0.93rem; }
 .method strong { color: var(--text); font-weight: 600; }
 .method a { color: var(--accent); }
 
 /* Install */
 .install-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; margin-top: 56px; align-items: start; }
+/* Grid items default to min-width:auto, so a long command would widen the column past the screen. */
+.install-grid > *, .steps > * { min-width: 0; }
 .steps { display: grid; gap: 40px; }
 .step h3 { margin-bottom: 8px; }
 .step p { color: var(--muted); margin-bottom: 14px; }

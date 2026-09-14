@@ -49,8 +49,8 @@ function runDemo(btn, announce) {
     }
   }, 55);
 }
+// The first answer ships pre-rendered in the HTML, so it is not retyped on load (keeps LCP fast).
 demoBtns.forEach((btn) => btn.addEventListener('click', () => runDemo(btn, true)));
-if (!reduceMotion) setTimeout(() => runDemo(demoBtns[0]), 500);
 
 // Nav Install button: show it once the hero buttons have scrolled away
 const navInstall = document.querySelector('.nav-install');
