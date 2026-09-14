@@ -13,44 +13,90 @@ themeBtn.addEventListener('click', () => {
 });
 paintThemeButton();
 
-// Hero console: pick a question, print its real output line by line
-const demoBtns = [...document.querySelectorAll('.ask-btn')];
-const demoOut = document.getElementById('demo-out');
-const demoQ = document.getElementById('demo-q');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const demoStatus = document.getElementById('demo-status');
-const demoNote = document.getElementById('demo-note');
-let demoTimer;
-// Screen readers get the whole answer once it has finished printing, not line by line.
-function runDemo(btn, announce) {
-  demoBtns.forEach((b) => b.setAttribute('aria-pressed', b === btn));
-  demoQ.textContent = btn.textContent;
-  demoNote.textContent = btn.dataset.note;
-  const template = document.getElementById(btn.dataset.demo);
-  const lines = template.innerHTML.split('\n');
-  const done = () => {
-    if (announce) demoStatus.textContent = `${btn.textContent} ${template.content.textContent}`;
-  };
-  clearInterval(demoTimer);
-  demoStatus.textContent = '';
+
+// Terminal output: each line becomes a block, so a wrapped line keeps a hanging indent.
+function lineHTML(line) {
+  const indent = line.match(/^ */)[0].length;
+  return `<span class="ln" style="--in:${indent}">${line || ' '}</span>`;
+}
+function renderLines(el, lines) {
+  clearInterval(el.typer);
+  el.classList.remove('is-typing');
+  el.innerHTML = lines.map(lineHTML).join('');
+}
+// Prints lines one at a time (all at once under reduced motion), then calls done.
+function typeLines(el, lines, done) {
   if (reduceMotion) {
-    demoOut.innerHTML = lines.join('\n');
-    done();
+    renderLines(el, lines);
+    if (done) done();
     return;
   }
-  demoOut.innerHTML = '';
+  clearInterval(el.typer);
+  el.innerHTML = '';
+  el.classList.add('is-typing');
   let i = 0;
-  demoTimer = setInterval(() => {
-    demoOut.insertAdjacentHTML('beforeend', (i ? '\n' : '') + lines[i]);
+  el.typer = setInterval(() => {
+    el.insertAdjacentHTML('beforeend', lineHTML(lines[i]));
     i += 1;
     if (i === lines.length) {
-      clearInterval(demoTimer);
-      done();
+      clearInterval(el.typer);
+      el.classList.remove('is-typing');
+      if (done) done();
     }
   }, 55);
 }
-// The first answer ships pre-rendered in the HTML, so it is not retyped on load (keeps LCP fast).
-demoBtns.forEach((btn) => btn.addEventListener('click', () => runDemo(btn, true)));
+
+// Hero console: pick a question, print its real output
+const demoBtns = [...document.querySelectorAll('.ask-btn')];
+const demoOut = document.getElementById('demo-out');
+const demoQ = document.getElementById('demo-q');
+const demoNote = document.getElementById('demo-note');
+const demoStatus = document.getElementById('demo-status');
+// The first answer ships pre-rendered in the HTML and is not retyped on load (keeps LCP fast).
+renderLines(demoOut, demoOut.innerHTML.split('\n'));
+// Screen readers get the whole answer once it has finished printing, not line by line.
+function runDemo(btn) {
+  demoBtns.forEach((b) => b.setAttribute('aria-pressed', b === btn));
+  demoQ.textContent = btn.textContent;
+  demoNote.textContent = btn.dataset.note;
+  demoStatus.textContent = '';
+  const template = document.getElementById(btn.dataset.demo);
+  typeLines(demoOut, template.innerHTML.split('\n'), () => {
+    demoStatus.textContent = `${btn.textContent} ${template.content.textContent}`;
+  });
+}
+demoBtns.forEach((btn) => btn.addEventListener('click', () => runDemo(btn)));
+
+// Comparison: both answers print like the hero console, on first view and on each tab change
+const sideSources = new Map();
+document.querySelectorAll('.side pre').forEach((pre) => {
+  const lines = pre.innerHTML.split('\n');
+  sideSources.set(pre, lines);
+  renderLines(pre, lines);
+});
+function playPanel(panel) {
+  panel.querySelectorAll('.side').forEach((side) => {
+    const pre = side.querySelector('pre');
+    const list = side.querySelector('ul');
+    if (!reduceMotion) list.classList.add('is-pending');
+    typeLines(pre, sideSources.get(pre), () => list.classList.remove('is-pending'));
+  });
+}
+let panelWatcher;
+if (!reduceMotion && 'IntersectionObserver' in window) {
+  const firstPanel = document.querySelector('.panel:not([hidden])');
+  firstPanel.querySelectorAll('.side').forEach((side) => {
+    side.querySelector('pre').innerHTML = '';
+    side.querySelector('ul').classList.add('is-pending');
+  });
+  panelWatcher = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    panelWatcher.disconnect();
+    playPanel(firstPanel);
+  }, { threshold: 0.2 });
+  panelWatcher.observe(firstPanel);
+}
 
 // Nav Install button: show it once the hero buttons have scrolled away
 const navInstall = document.querySelector('.nav-install');
@@ -85,11 +131,14 @@ if ('IntersectionObserver' in window) {
 // Tabs
 const tabs = [...document.querySelectorAll('[role="tab"]')];
 function select(tab) {
+  if (panelWatcher) panelWatcher.disconnect();
   tabs.forEach((t) => {
     const on = t === tab;
     t.setAttribute('aria-selected', on);
     t.tabIndex = on ? 0 : -1;
-    document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    const panel = document.getElementById(t.getAttribute('aria-controls'));
+    panel.hidden = !on;
+    if (on) playPanel(panel);
   });
 }
 tabs.forEach((tab, i) => {
