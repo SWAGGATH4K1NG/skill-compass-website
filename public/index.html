@@ -1,14 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>skill-manager · know your agent skills</title>
+<title>skill-compass · know your agent skills</title>
 <meta name="description" content="An open Agent Skill that lists what you have installed, tells you which skill to use, spots duplicates and broken installs. Works across Claude Code, Codex, Cursor, OpenCode and Windsurf.">
-<meta property="og:title" content="skill-manager: know your agent skills">
+<meta property="og:title" content="skill-compass: know your agent skills">
 <meta property="og:description" content="Lists your installed agent skills, recommends which one to use, spots duplicates and broken installs.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23047857'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3Esc%3C/text%3E%3C/svg%3E">
+<meta name="twitter:card" content="summary">
+<meta name="color-scheme" content="dark light">
+<script>
+  (function () {
+    var root = document.documentElement;
+    root.classList.add('js');
+    try { root.dataset.theme = localStorage.getItem('theme') || 'dark'; } catch (e) {}
+  })();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2410c'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3Esc%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -24,27 +33,35 @@
   <div class="wrap">
     <a class="brand" href="#"><i class="ph ph-compass"></i>skill-compass</a>
     <div class="nav-links">
+      <a class="hide-sm" href="#why">Why</a>
       <a class="hide-sm" href="#compare">Before and after</a>
       <a class="hide-sm" href="#results">Results</a>
       <a class="hide-sm" href="#install">Install</a>
-      <a href="https://github.com/SWAGGATH4K1NG/skill-compass" aria-label="GitHub repository"><i class="ph ph-github-logo" style="font-size:20px"></i></a>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to light theme"><i class="ph ph-sun"></i></button>
+      <a class="icon-btn" href="https://github.com/SWAGGATH4K1NG/skill-compass" aria-label="GitHub repository"><i class="ph ph-github-logo"></i></a>
     </div>
   </div>
 </nav>
 
 <header class="hero">
-  <div class="wrap hero-grid">
-    <div>
-      <h1>Stop guessing which <em>agent skill</em> to use.</h1>
-      <p class="lede">skill-manager knows what you have installed, which skill fits the task, and what is broken or duplicated.</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="#install"><i class="ph ph-download-simple"></i>Install</a>
-        <a class="btn btn-ghost" href="https://github.com/SWAGGATH4K1NG/skill-compass"><i class="ph ph-github-logo"></i>GitHub</a>
-      </div>
+  <div class="wrap hero-head">
+    <h1>Stop guessing which <em>agent skill</em> to use.</h1>
+    <p class="hero-lede">skill-compass checks what you have installed, picks the right skill for the task and flags broken installs.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#install"><i class="ph ph-download-simple"></i>Install</a>
+      <a class="btn btn-ghost" href="https://github.com/SWAGGATH4K1NG/skill-compass"><i class="ph ph-code"></i>View source</a>
     </div>
-    <div class="term" role="img" aria-label="Output of the skill-manager inventory script listing installed skills and a broken install">
-      <div class="term-bar"><span class="mono">inventory.mjs --text</span><span>real output, paths shortened</span></div>
-<pre><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
+  </div>
+
+  <div class="wrap demo">
+    <div class="asks" role="group" aria-label="Try a question">
+      <button class="ask-btn" type="button" aria-pressed="true" data-demo="d-list">What skills do I have?</button>
+      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-issues">Are my skills OK?</button>
+      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-dup">Do I need all these?</button>
+    </div>
+    <div class="console">
+      <div class="console-bar"><span class="console-q">&gt; <span id="demo-q">What skills do I have?</span></span><span class="console-note">real output, shortened</span></div>
+<pre id="demo-out" aria-live="polite"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
 Skills (20)
   code-review  <span class="c-dim">[claude-code]</span>
     Review the changes since a fixed point along two axes.
@@ -56,84 +73,87 @@ Skills (20)
     A relentless interview to sharpen a plan or design.
   prisma-cli  <span class="c-dim">[codex, cursor, opencode]</span>
     Prisma ORM CLI commands reference.
-  <span class="c-dim">...</span>
+  <span class="c-dim">...</span></pre>
+    </div>
+  </div>
 
+<template id="d-list"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
+Skills (20)
+  code-review  <span class="c-dim">[claude-code]</span>
+    Review the changes since a fixed point along two axes.
+  diagnosing-bugs  <span class="c-dim">[claude-code]</span>
+    Diagnosis loop for hard bugs and performance regressions.
+  find-skills  <span class="c-dim">[shared]</span>
+    Helps users discover and install agent skills.
+  grill-me  <span class="c-dim">[claude-code, manual only, shortcut for grilling]</span>
+    A relentless interview to sharpen a plan or design.
+  prisma-cli  <span class="c-dim">[codex, cursor, opencode]</span>
+    Prisma ORM CLI commands reference.
+  <span class="c-dim">...</span></template>
+<template id="d-issues"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
+<span class="c-dim">...</span>
 Issues
   <span class="c-err">ERROR symlink-as-text (18)</span>: a text file with a path instead of
   a skill folder. The agent cannot load it.
-    ~/my-app/.claude/skills/prisma-cli -> ~/my-app/.agents/skills/prisma-cli
+    ~/my-app/.claude/skills/prisma-cli -&gt; ~/my-app/.agents/skills/prisma-cli
     <span class="c-dim">... and 17 more</span>
 
-Scanned: ~/.agents/skills, ~/.claude/skills, ~/my-app/.agents/skills, ...</pre>
-    </div>
-  </div>
+<span class="c-dim">Scanned: ~/.agents/skills, ~/.claude/skills, ~/my-app/.agents/skills, ...</span></template>
+<template id="d-dup">Duplicates: "build a nice UI"
+  frontend-design  <span class="c-ok">keep</span>, the most complete of the three
+  frontend-ui      worth reviewing, adds nothing new
+  ui-design        worth reviewing, same job
+
+Partial overlap
+  design-taste-frontend  <span class="c-ok">keep</span> if you do redesigns
+  frontend-master        <span class="c-ok">keep</span>, the only one covering state,
+                         routing and performance
+
+<span class="c-dim">Near-duplicates use context and make the agent pick</span>
+<span class="c-dim">unpredictably. The decision to remove is yours.</span></template>
 </header>
 
-<section class="pos" aria-label="How skill-manager relates to find-skills">
-  <div class="wrap pos-grid">
-    <div class="pos-col">
-      <div class="who">find-skills, by Vercel Labs</div>
-      <h3>The shop.</h3>
-      <p>Searches skills.sh for skills you do not have yet, ranked by popularity.</p>
-    </div>
-    <div class="pos-col ours">
-      <div class="who">skill-manager</div>
-      <h3>The inventory.</h3>
-      <p>Works on what you already have, and hands off to find-skills when something is missing. Use them together.</p>
-    </div>
+<section class="works" aria-label="Supported agents">
+  <div class="wrap works-row">
+    <span class="works-label reveal">Works with</span>
+    <ul class="logos stagger">
+      <li><span class="logo logo-claude" aria-hidden="true"></span>Claude Code</li>
+      <li><span class="logo logo-openai" aria-hidden="true"></span>Codex</li>
+      <li><span class="logo logo-cursor" aria-hidden="true"></span>Cursor</li>
+      <li><span class="logo logo-windsurf" aria-hidden="true"></span>Windsurf</li>
+      <li><span class="logo logo-opencode" aria-hidden="true"></span>OpenCode</li>
+    </ul>
   </div>
 </section>
 
-<section id="features">
+<section id="why" class="why">
   <div class="wrap">
-    <h2>Answers the questions you actually ask.</h2>
-    <p class="lede">Short answers by default, one line per skill. Ask about a specific skill and you get the full explanation.</p>
-    <div class="bento">
-      <div class="cell c-a">
-        <i class="ph ph-list-magnifying-glass"></i>
-        <h3>See what you have</h3>
-        <p>Every skill across Claude Code, Codex, Cursor, OpenCode and Windsurf folders, grouped by area, with what each one is for.</p>
-        <div class="ask">"What skills do I have?"</div>
+    <h2 class="reveal">Your agent answers from memory.</h2>
+    <div class="why-body reveal">
+      <p>I had skills installed for Claude Code, Codex and Cursor, spread across folders I had forgotten about. When I asked my agent what I had, it guessed.</p>
+      <p>It missed skills in other agents' folders, said a project had no broken links when it had nine, and told me to delete a shortcut that was working fine.</p>
+      <p>So I built a skill that looks before it answers.</p>
+    </div>
+
+    <div class="pos stagger" aria-label="How skill-compass relates to find-skills">
+      <div class="pos-col">
+        <div class="who">find-skills, by Vercel Labs</div>
+        <h3>The shop.</h3>
+        <p>Searches skills.sh for skills you do not have yet, ranked by popularity.</p>
       </div>
-      <div class="cell c-b">
-        <i class="ph ph-signpost"></i>
-        <h3>Pick the right one</h3>
-        <p>Which of your skills fit the task, in the order you would use them, and what is missing. Then it steps aside and the chosen skill runs exactly as written.</p>
-        <div class="ask">"Which skills for a REST API with JWT?"</div>
-      </div>
-      <div class="cell c-c">
-        <i class="ph ph-copy"></i>
-        <h3>Spot overlap</h3>
-        <p>Duplicates, partial overlaps and complementary skills. You decide what to remove.</p>
-        <div class="ask">"Do I need all these?"</div>
-      </div>
-      <div class="cell c-d">
-        <i class="ph ph-first-aid-kit"></i>
-        <h3>Find broken installs</h3>
-        <p>Broken links, invalid SKILL.md files, name collisions, skills installed for another agent.</p>
-        <div class="ask">"Are my skills OK?"</div>
-      </div>
-      <div class="cell c-e">
-        <i class="ph ph-magnifying-glass-plus"></i>
-        <h3>Know when to search</h3>
-        <p>Nothing fits? It says so, and points you to find-skills with a search term.</p>
-        <div class="ask">"Do I have anything for OAuth?"</div>
-      </div>
-      <div class="cell c-f">
-        <div>
-          <h3>Works without an agent too</h3>
-          <p>The inventory script is read-only and dependency-free. Run it in any terminal with Node 18+.</p>
-        </div>
-        <code>node inventory.mjs --issues --text</code>
+      <div class="pos-col ours">
+        <div class="who">skill-compass</div>
+        <h3>The inventory.</h3>
+        <p>Works on what you already have, and hands off to find-skills when something is missing. Use them together.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section id="compare" style="padding-top:24px">
+<section id="compare">
   <div class="wrap">
-    <h2>Same model, same question.</h2>
-    <p class="lede">Answers from our test runs with Claude Opus 5, with and without the skill. Shortened and translated from Portuguese; nothing added.</p>
+    <h2 class="reveal">Same model. Same question.</h2>
+    <p class="lede reveal">Claude Opus 5, with and without the skill. Shortened and translated from Portuguese, nothing added.</p>
 
     <div class="tabs" role="tablist" aria-label="Comparisons">
       <button class="tab" role="tab" aria-selected="true" aria-controls="p-list" id="t-list">What do I have?</button>
@@ -161,7 +181,7 @@ Notes:
           </ul>
         </div>
         <div class="side with">
-          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-manager</div>
+          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-compass</div>
 <pre>Engineering
 ✓ diagnosing-bugs  diagnosis loop for hard bugs
 ✓ grilling  stress-tests a plan with hard questions
@@ -204,7 +224,7 @@ Want the install commands for the first three?</pre>
           </ul>
         </div>
         <div class="side with">
-          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-manager</div>
+          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-compass</div>
 <pre>No skills found besides skill-manager.
 
 I won't give you a list from memory. Popularity and
@@ -247,7 +267,7 @@ Want me to remove the three redundant ones?</pre>
           </ul>
         </div>
         <div class="side with">
-          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-manager</div>
+          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-compass</div>
 <pre>Duplicates: "build a nice UI"
   frontend-design  keep, the most complete of the three
   frontend-ui      worth reviewing, adds nothing new
@@ -270,12 +290,46 @@ unpredictably. The decision to remove is yours.</pre>
   </div>
 </section>
 
+<section id="features">
+  <div class="wrap">
+    <h2 class="reveal">Ask it like you would ask a colleague.</h2>
+    <div class="bento stagger">
+      <div class="cell c-main">
+        <i class="ph ph-signpost"></i>
+        <h3>Pick the right one</h3>
+        <p>Which of your skills fit the task, in the order you would use them, and what is missing. Then it steps aside and the chosen skill runs exactly as written.</p>
+        <div class="ask">"Which skills for a REST API with JWT?"</div>
+      </div>
+      <div class="cell">
+        <h3>See what you have</h3>
+        <p>Every skill across Claude Code, Codex, Cursor, OpenCode and Windsurf, grouped by area.</p>
+        <div class="ask">"What skills do I have?"</div>
+      </div>
+      <div class="cell c-code">
+        <h3>Find broken installs</h3>
+        <p>Broken links, invalid SKILL.md files, name collisions, skills installed for another agent.</p>
+        <code>ERROR symlink-as-text (18)</code>
+      </div>
+      <div class="cell">
+        <h3>Spot overlap</h3>
+        <p>Duplicates, partial overlaps and complementary skills. You decide what to remove.</p>
+        <div class="ask">"Do I need all these?"</div>
+      </div>
+      <div class="cell c-soft">
+        <h3>Know when to search</h3>
+        <p>Nothing fits? It says so, and points you to find-skills with a search term.</p>
+        <div class="ask">"Do I have anything for OAuth?"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="results" class="results">
   <div class="wrap">
-    <h2>What changed in testing.</h2>
-    <p class="lede">Seven test prompts, each answered with and without the skill, checked against 5 to 11 written criteria.</p>
+    <h2 class="reveal">What changed in testing.</h2>
+    <p class="lede reveal">Seven prompts, each answered with and without the skill, checked against 5 to 11 written criteria.</p>
 
-    <div class="stats">
+    <div class="stats stagger">
       <div class="stat">
         <div class="num">100% <small>vs 76%</small></div>
         <p>Criteria met with the skill, compared with the same model on its own.</p>
@@ -290,34 +344,29 @@ unpredictably. The decision to remove is yours.</pre>
       </div>
     </div>
 
-    <div class="evals">
-      <div class="eval"><span class="name">List installed skills</span><span class="score">38% → <b>100%</b></span></div>
-      <div class="eval"><span class="name">No skills installed yet</span><span class="score">57% → <b>100%</b></span></div>
-      <div class="eval"><span class="name">Too many frontend skills</span><span class="score">80% → <b>100%</b></span></div>
-      <div class="eval"><span class="name">Missing skill for a task</span><span class="score">83% → <b>100%</b></span></div>
-      <div class="eval"><span class="name">Explain one skill in depth</span><span class="score">86% → <b>100%</b></span></div>
-      <div class="eval"><span class="name">Health check, broken fixtures</span><span class="score">91% → <b>100%</b></span></div>
-      <div class="eval"><span class="name">Health check, real setup</span><span class="score">100% → <b>100%</b></span></div>
+    <div class="evals stagger">
+      <div class="eval"><span class="name">List installed skills</span><span class="bar" style="--v:38%"></span><span class="score">38% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">No skills installed yet</span><span class="bar" style="--v:57%"></span><span class="score">57% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Too many frontend skills</span><span class="bar" style="--v:80%"></span><span class="score">80% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Missing skill for a task</span><span class="bar" style="--v:83%"></span><span class="score">83% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Explain one skill in depth</span><span class="bar" style="--v:86%"></span><span class="score">86% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Health check, broken fixtures</span><span class="bar" style="--v:91%"></span><span class="score">91% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Health check, real setup</span><span class="bar" style="--v:100%"></span><span class="score">100% → <b>100%</b></span></div>
     </div>
 
-    <div class="method">
-      <i class="ph ph-info"></i>
-      <div>
-        <strong>Read these numbers as indicative.</strong> One run per prompt per configuration, on Claude Opus 5 in Claude Code, graded by the skill's author. The model alone already does well when asked directly, as the health checks show. The skill's value is consistency: it scans every agent folder every time, does not invent skills, and does not push you to delete things. Prompts and fixtures are in the repo, so you can <a href="https://github.com/SWAGGATH4K1NG/skill-compass/tree/main/skills/skill-manager/evals">rerun them</a>.
-      </div>
-    </div>
+    <p class="method reveal"><strong>Read these numbers as indicative.</strong> One run per prompt per configuration, on Claude Opus 5 in Claude Code, graded by me. The model alone already does well when asked directly, as the health checks show. The value is consistency: it scans every agent folder every time, does not invent skills, and does not push you to delete things. Prompts and fixtures are in the repo, so you can <a href="https://github.com/SWAGGATH4K1NG/skill-compass/tree/main/skills/skill-manager/evals">rerun them</a>.</p>
   </div>
 </section>
 
 <section id="install">
   <div class="wrap">
-    <h2>Install once. Call it by name.</h2>
+    <h2 class="reveal">Install once. Call it by name.</h2>
     <div class="install-grid">
-      <div>
+      <div class="steps stagger">
         <div class="step">
           <h3>Add the skill</h3>
           <p>Uses the skills CLI, which installs into any supported agent.</p>
-          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager</code><button class="copy" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager">Copy</button></div>
+          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager">Copy</button></div>
         </div>
         <div class="step">
           <h3>Make it trigger on its own</h3>
@@ -327,33 +376,44 @@ When I ask about my agent skills (what I have, what one does,
 which to use, whether one is missing or redundant, or whether
 they are installed correctly), use the skill-manager skill.</pre>
         </div>
-      </div>
-      <div>
         <div class="step">
-          <h3>Or start it explicitly</h3>
-          <p>The most reliable way, in whichever agent you use.</p>
-          <div class="agents">
-            <div class="agent"><span class="who">Claude Code</span><code>/skill-manager</code></div>
-            <div class="agent"><span class="who">Codex</span><span><code>$skill-manager</code> <span class="note">or pick it from /skills</span></span></div>
-            <div class="agent"><span class="who">Cursor</span><code>/skill-manager</code></div>
-            <div class="agent"><span class="who">Windsurf</span><code>@skill-manager</code></div>
-            <div class="agent"><span class="who">OpenCode</span><span class="note">Mention it: "use the skill-manager skill"</span></div>
-          </div>
+          <h3>Or run it without an agent</h3>
+          <p>The inventory script is read-only and dependency-free. Any terminal with Node 18+.</p>
+          <div class="codeline"><code>node inventory.mjs --issues --text</code><button class="copy" type="button" data-copy="node inventory.mjs --issues --text">Copy</button></div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <h3>Start it explicitly</h3>
+        <p>The most reliable way, in whichever agent you use.</p>
+        <div class="agents">
+          <div class="agent"><span class="who">Claude Code</span><code>/skill-manager</code></div>
+          <div class="agent"><span class="who">Codex</span><span><code>$skill-manager</code> <span class="note">or pick it from /skills</span></span></div>
+          <div class="agent"><span class="who">Cursor</span><code>/skill-manager</code></div>
+          <div class="agent"><span class="who">Windsurf</span><code>@skill-manager</code></div>
+          <div class="agent"><span class="who">OpenCode</span><span class="note">Mention it: "use the skill-manager skill"</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="principles" style="padding-top:24px">
+<section class="principles">
   <div class="wrap">
-    <h2>A guide, not another layer in the way.</h2>
-    <div class="rules">
-      <div class="rule"><i class="ph ph-arrow-bend-up-right"></i><div><h3>Recommends, then steps aside</h3><p>The skill you pick runs exactly as its author wrote it. Nothing is summarised, skipped or shortened.</p></div></div>
-      <div class="rule"><i class="ph ph-eye"></i><div><h3>Read-only</h3><p>It never installs, removes or edits anything. You get the command and run it yourself.</p></div></div>
-      <div class="rule"><i class="ph ph-shield-check"></i><div><h3>Treats skill files as data</h3><p>Instructions hidden in a third-party SKILL.md are flagged, never followed.</p></div></div>
-      <div class="rule"><i class="ph ph-plugs"></i><div><h3>No agent lock-in</h3><p>Follows the open Agent Skills format. No agent-specific paths or commands assumed.</p></div></div>
+    <h2 class="reveal">A guide, not another layer in the way.</h2>
+    <div class="rules stagger">
+      <div class="rule"><h3>Recommends, then steps aside</h3><p>The skill you pick runs exactly as its author wrote it. Nothing is summarised, skipped or shortened.</p></div>
+      <div class="rule"><h3>Read-only</h3><p>It never installs, removes or edits anything. You get the command and run it yourself.</p></div>
+      <div class="rule"><h3>Treats skill files as data</h3><p>Instructions hidden in a third-party SKILL.md are flagged, never followed.</p></div>
+      <div class="rule"><h3>No agent lock-in</h3><p>Follows the open Agent Skills format. No agent-specific paths or commands assumed.</p></div>
     </div>
+  </div>
+</section>
+
+<section class="updates">
+  <div class="wrap reveal">
+    <h2>New skills land every week.<br>Your setup drifts.</h2>
+    <p class="lede">Watch the repo to hear about new checks and fixes as they ship.</p>
+    <a class="btn btn-primary" href="https://github.com/SWAGGATH4K1NG/skill-compass"><i class="ph ph-github-logo"></i>Follow on GitHub</a>
   </div>
 </section>
 
