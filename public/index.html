@@ -386,24 +386,23 @@ unpredictably. <span class="c-ok">The decision to remove is yours.</span></pre>
       <div class="steps stagger">
         <div class="step">
           <h3>Add the skill</h3>
-          <p>Uses the skills CLI. <code>-g</code> installs it for all your projects, so it can see every skill you have.</p>
-          <div class="os-label">macOS and Linux</div>
-          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g">Copy</button></div>
-          <div class="os-label">Windows</div>
-          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g --copy</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g --copy">Copy</button></div>
-          <p class="os-note"><code>--copy</code> copies the files instead of linking them. On Windows, links can end up saved as plain text files that agents cannot load.</p>
+          <div class="os-switch" role="group" aria-label="Operating system">
+            <button class="os-btn" type="button" aria-pressed="true" data-os="unix">macOS / Linux</button>
+            <button class="os-btn" type="button" aria-pressed="false" data-os="win">Windows</button>
+          </div>
+          <div class="codeline" data-os-panel="unix"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g">Copy</button></div>
+          <div class="codeline" data-os-panel="win" hidden><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g --copy</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g --copy">Copy</button></div>
+          <p class="os-note" data-os-panel="win" hidden><code>--copy</code> avoids broken links on Windows.</p>
         </div>
         <div class="step">
           <h3>Make it trigger on its own</h3>
-          <p>Agents often answer "what skills do I have?" from memory. One line in your AGENTS.md or CLAUDE.md fixes that.</p>
+          <p>Add this to AGENTS.md or CLAUDE.md.</p>
 <pre class="snippet">## Skills
-When I ask about my agent skills (what I have, what one does,
-which to use, whether one is missing or redundant, or whether
-they are installed correctly), use the skill-compass skill.</pre>
+For questions about my agent skills, use the skill-compass skill.</pre>
         </div>
         <div class="step">
           <h3>Or run it without an agent</h3>
-          <p>The inventory script is read-only and dependency-free. Any terminal with Node 18+.</p>
+          <p>Read-only, no dependencies, Node 18+.</p>
           <div class="codeline"><code>node inventory.mjs --issues --text</code><button class="copy" type="button" data-copy="node inventory.mjs --issues --text">Copy</button></div>
         </div>
       </div>

@@ -153,6 +153,18 @@ tabs.forEach((tab, i) => {
   });
 });
 
+// Install: show the command for the visitor's OS (Windows gets --copy)
+const osBtns = [...document.querySelectorAll('.os-btn')];
+function selectOS(os) {
+  osBtns.forEach((b) => b.setAttribute('aria-pressed', b.dataset.os === os));
+  document.querySelectorAll('[data-os-panel]').forEach((el) => {
+    el.hidden = el.dataset.osPanel !== os;
+  });
+}
+osBtns.forEach((b) => b.addEventListener('click', () => selectOS(b.dataset.os)));
+const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.userAgent;
+if (/win/i.test(platform)) selectOS('win');
+
 // Copy buttons
 document.querySelectorAll('.copy').forEach((btn) => {
   btn.addEventListener('click', async () => {
