@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>skill-manager · know your agent skills</title>
+<meta name="description" content="An open Agent Skill that lists what you have installed, tells you which skill to use, spots duplicates and broken installs. Works across Claude Code, Codex, Cursor, OpenCode and Windsurf.">
+<meta property="og:title" content="skill-manager: know your agent skills">
+<meta property="og:description" content="Lists your installed agent skills, recommends which one to use, spots duplicates and broken installs.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23047857'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3Esc%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+
+<!-- Visitor analytics: Cloudflare Web Analytics, enabled in the Cloudflare Pages dashboard (injected automatically, no script needed here). -->
+
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --line: #e4e4e7;
+    --text: #18181b;
+    --muted: #52525b;
+    --faint: #71717a;
+    --accent: #047857;
+    --accent-soft: #ecfdf5;
+    --accent-line: #a7f3d0;
+    --bad: #b91c1c;
+    --bad-soft: #fef2f2;
+    --code-bg: #111113;
+    --code-text: #e4e4e7;
+    --code-faint: #8b8b94;
+    --code-accent: #34d399;
+    --radius: 10px;
+    --max: 1180px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #09090b;
+      --surface: #111113;
+      --surface-2: #18181b;
+      --line: #27272a;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --faint: #8b8b94;
+      --accent: #34d399;
+      --accent-soft: #052e22;
+      --accent-line: #065f46;
+      --bad: #f87171;
+      --bad-soft: #2a1010;
+      --code-bg: #0c0c0e;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  code, pre, .mono { font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  section { padding: 96px 0; }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.025em; line-height: 1.1; }
+  h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); font-weight: 600; }
+  h3 { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 62ch; margin-top: 16px; font-size: 1.05rem; }
+
+  /* Nav */
+  nav.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav.top .wrap { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .brand { font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand i { color: var(--accent); font-size: 22px; }
+  .nav-links { display: flex; gap: 28px; align-items: center; font-size: 0.93rem; color: var(--muted); }
+  .nav-links a { text-decoration: none; }
+  .nav-links a:hover { color: var(--text); }
+  @media (max-width: 720px) { .nav-links .hide-sm { display: none; } }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: var(--radius); font-weight: 500; font-size: 0.95rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background .15s ease; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--text); color: var(--bg); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--text) 85%, var(--accent)); }
+  .btn-ghost { border-color: var(--line); background: var(--surface); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--faint); }
+
+  /* Hero */
+  .hero { padding: 72px 0 88px; }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 56px; align-items: center; }
+  .hero h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 650; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero .lede { font-size: 1.12rem; }
+  .hero-cta { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  /* Terminal (real script output) */
+  .term { background: var(--code-bg); color: var(--code-text); border-radius: 14px; border: 1px solid #27272a; overflow: hidden; box-shadow: 0 24px 60px -24px rgb(4 120 87 / .35); }
+  .term-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #27272a; font-size: 0.78rem; color: var(--code-faint); }
+  .term pre { margin: 0; padding: 18px 20px; font-size: 0.8rem; line-height: 1.65; overflow-x: auto; white-space: pre; }
+  .term .c-cmd { color: var(--code-accent); }
+  .term .c-dim { color: var(--code-faint); }
+  .term .c-err { color: #fca5a5; }
+
+  /* Positioning */
+  .pos { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
+  .pos-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .pos-col { padding: 56px 48px 56px 0; }
+  .pos-col + .pos-col { padding: 56px 0 56px 48px; border-left: 1px solid var(--line); }
+  .pos-col .who { font-family: "Geist Mono", monospace; font-size: 0.85rem; color: var(--faint); margin-bottom: 12px; }
+  .pos-col h3 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+  .pos-col p { color: var(--muted); margin-top: 12px; max-width: 46ch; }
+  .pos-col.ours h3 { color: var(--accent); }
+  @media (max-width: 800px) { .pos-grid { grid-template-columns: 1fr; } .pos-col, .pos-col + .pos-col { padding: 40px 0; border-left: 0; } .pos-col + .pos-col { border-top: 1px solid var(--line); } }
+
+  /* Capabilities bento */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
+  .cell { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .cell i { font-size: 26px; color: var(--accent); }
+  .cell p { color: var(--muted); }
+  .cell .ask { margin-top: auto; padding-top: 14px; font-family: "Geist Mono", monospace; font-size: 0.82rem; color: var(--faint); }
+  .c-a { grid-column: span 3; }
+  .c-b { grid-column: span 3; background: var(--accent-soft); border-color: var(--accent-line); }
+  .c-c { grid-column: span 2; }
+  .c-d { grid-column: span 2; }
+  .c-e { grid-column: span 2; background: var(--surface-2); }
+  .c-f { grid-column: span 6; flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; background: var(--code-bg); color: var(--code-text); border-color: #27272a; }
+  .c-f p { color: var(--code-faint); max-width: 60ch; }
+  .c-f code { color: var(--code-accent); font-size: 0.9rem; white-space: nowrap; }
+  @media (max-width: 900px) { .bento { grid-template-columns: 1fr; } .c-a, .c-b, .c-c, .c-d, .c-e, .c-f { grid-column: auto; } .c-f { flex-direction: column; align-items: flex-start; } .c-f code { white-space: normal; word-break: break-all; } }
+
+  /* Comparison */
+  .tabs { display: flex; gap: 8px; margin-top: 40px; flex-wrap: wrap; }
+  .tab { font: inherit; font-size: 0.92rem; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .tab:focus-visible, .btn:focus-visible, .copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel { margin-top: 24px; }
+  .prompt { font-family: "Geist Mono", monospace; font-size: 0.95rem; padding: 14px 18px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--line); }
+  .prompt span { color: var(--faint); }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .side { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; display: flex; flex-direction: column; }
+  .side-head { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 0.88rem; font-weight: 600; }
+  .side.without .side-head { color: var(--bad); background: var(--bad-soft); }
+  .side.with .side-head { color: var(--accent); background: var(--accent-soft); }
+  .side pre { margin: 0; padding: 18px; font-size: 0.8rem; line-height: 1.6; white-space: pre-wrap; color: var(--text); flex: 1; }
+  .side ul { margin: 0; padding: 14px 18px 18px 36px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+  .side li + li { margin-top: 4px; }
+  @media (max-width: 860px) { .vs { grid-template-columns: 1fr; } }
+
+  /* Results */
+  .results { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 48px; border-top: 1px solid var(--line); }
+  .stat { padding: 28px 24px 28px 0; }
+  .stat + .stat { padding-left: 24px; border-left: 1px solid var(--line); }
+  .stat .num { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .stat .num small { font-size: 0.5em; color: var(--faint); font-weight: 500; }
+  .stat p { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+  @media (max-width: 720px) { .stats { grid-template-columns: 1fr; } .stat, .stat + .stat { padding: 20px 0; border-left: 0; border-top: 1px solid var(--line); } }
+  .evals { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; margin-top: 32px; }
+  .eval { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .eval .name { color: var(--text); }
+  .eval .score { font-family: "Geist Mono", monospace; font-size: 0.9rem; white-space: nowrap; color: var(--faint); }
+  .eval .score b { color: var(--accent); font-weight: 500; }
+  @media (max-width: 800px) { .evals { grid-template-columns: 1fr; } }
+  .method { margin-top: 40px; display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 22px 24px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.93rem; }
+  .method i { font-size: 22px; color: var(--faint); }
+  .method strong { color: var(--text); font-weight: 600; }
+
+  /* Install */
+  .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 48px; align-items: start; }
+  .step h3 { margin-bottom: 12px; }
+  .step p { color: var(--muted); margin-bottom: 14px; }
+  .step + .step { margin-top: 36px; }
+  .codeline { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--code-bg); color: var(--code-text); border-radius: var(--radius); padding: 12px 12px 12px 16px; font-size: 0.85rem; }
+  .codeline code { overflow-x: auto; white-space: nowrap; }
+  pre.snippet { margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: var(--radius); padding: 16px; font-size: 0.82rem; white-space: pre-wrap; }
+  .copy { flex-shrink: 0; font: inherit; font-size: 0.78rem; color: var(--code-faint); background: transparent; border: 1px solid #3f3f46; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+  .copy:hover { color: var(--code-text); }
+  .agents { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+  .agent { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 14px 20px; align-items: baseline; }
+  .agent + .agent { border-top: 1px solid var(--line); }
+  .agent .who { font-weight: 500; }
+  .agent code { font-size: 0.85rem; color: var(--accent); }
+  .agent .note { color: var(--muted); font-size: 0.88rem; }
+  @media (max-width: 860px) { .install-grid { grid-template-columns: 1fr; } .agent { grid-template-columns: 1fr; gap: 4px; } }
+
+  /* Principles */
+  .principles h2 { max-width: 20ch; }
+  .rules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 64px; margin-top: 48px; }
+  .rule { display: grid; grid-template-columns: auto 1fr; gap: 16px; }
+  .rule i { font-size: 24px; color: var(--accent); margin-top: 2px; }
+  .rule p { color: var(--muted); margin-top: 6px; }
+  @media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--faint); font-size: 0.9rem; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><i class="ph ph-compass"></i>skill-compass</a>
+    <div class="nav-links">
+      <a class="hide-sm" href="#compare">Before and after</a>
+      <a class="hide-sm" href="#results">Results</a>
+      <a class="hide-sm" href="#install">Install</a>
+      <a href="https://github.com/SWAGGATH4K1NG/skill-compass" aria-label="GitHub repository"><i class="ph ph-github-logo" style="font-size:20px"></i></a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Stop guessing which <em>agent skill</em> to use.</h1>
+      <p class="lede">skill-manager knows what you have installed, which skill fits the task, and what is broken or duplicated.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#install"><i class="ph ph-download-simple"></i>Install</a>
+        <a class="btn btn-ghost" href="https://github.com/SWAGGATH4K1NG/skill-compass"><i class="ph ph-github-logo"></i>GitHub</a>
+      </div>
+    </div>
+    <div class="term" role="img" aria-label="Output of the skill-manager inventory script listing installed skills and a broken install">
+      <div class="term-bar"><span class="mono">inventory.mjs --text</span><span>real output, paths shortened</span></div>
+<pre><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
+Skills (20)
+  code-review  <span class="c-dim">[claude-code]</span>
+    Review the changes since a fixed point along two axes.
+  diagnosing-bugs  <span class="c-dim">[claude-code]</span>
+    Diagnosis loop for hard bugs and performance regressions.
+  find-skills  <span class="c-dim">[shared]</span>
+    Helps users discover and install agent skills.
+  grill-me  <span class="c-dim">[claude-code, manual only, shortcut for grilling]</span>
+    A relentless interview to sharpen a plan or design.
+  prisma-cli  <span class="c-dim">[codex, cursor, opencode]</span>
+    Prisma ORM CLI commands reference.
+  <span class="c-dim">...</span>
+
+Issues
+  <span class="c-err">ERROR symlink-as-text (18)</span>: a text file with a path instead of
+  a skill folder. The agent cannot load it.
+    ~/my-app/.claude/skills/prisma-cli -> ~/my-app/.agents/skills/prisma-cli
+    <span class="c-dim">... and 17 more</span>
+
+Scanned: ~/.agents/skills, ~/.claude/skills, ~/my-app/.agents/skills, ...</pre>
+    </div>
+  </div>
+</header>
+
+<section class="pos" aria-label="How skill-manager relates to find-skills">
+  <div class="wrap pos-grid">
+    <div class="pos-col">
+      <div class="who">find-skills, by Vercel Labs</div>
+      <h3>The shop.</h3>
+      <p>Searches skills.sh for skills you do not have yet, ranked by popularity.</p>
+    </div>
+    <div class="pos-col ours">
+      <div class="who">skill-manager</div>
+      <h3>The inventory.</h3>
+      <p>Works on what you already have, and hands off to find-skills when something is missing. Use them together.</p>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Answers the questions you actually ask.</h2>
+    <p class="lede">Short answers by default, one line per skill. Ask about a specific skill and you get the full explanation.</p>
+    <div class="bento">
+      <div class="cell c-a">
+        <i class="ph ph-list-magnifying-glass"></i>
+        <h3>See what you have</h3>
+        <p>Every skill across Claude Code, Codex, Cursor, OpenCode and Windsurf folders, grouped by area, with what each one is for.</p>
+        <div class="ask">"What skills do I have?"</div>
+      </div>
+      <div class="cell c-b">
+        <i class="ph ph-signpost"></i>
+        <h3>Pick the right one</h3>
+        <p>Which of your skills fit the task, in the order you would use them, and what is missing. Then it steps aside and the chosen skill runs exactly as written.</p>
+        <div class="ask">"Which skills for a REST API with JWT?"</div>
+      </div>
+      <div class="cell c-c">
+        <i class="ph ph-copy"></i>
+        <h3>Spot overlap</h3>
+        <p>Duplicates, partial overlaps and complementary skills. You decide what to remove.</p>
+        <div class="ask">"Do I need all these?"</div>
+      </div>
+      <div class="cell c-d">
+        <i class="ph ph-first-aid-kit"></i>
+        <h3>Find broken installs</h3>
+        <p>Broken links, invalid SKILL.md files, name collisions, skills installed for another agent.</p>
+        <div class="ask">"Are my skills OK?"</div>
+      </div>
+      <div class="cell c-e">
+        <i class="ph ph-magnifying-glass-plus"></i>
+        <h3>Know when to search</h3>
+        <p>Nothing fits? It says so, and points you to find-skills with a search term.</p>
+        <div class="ask">"Do I have anything for OAuth?"</div>
+      </div>
+      <div class="cell c-f">
+        <div>
+          <h3>Works without an agent too</h3>
+          <p>The inventory script is read-only and dependency-free. Run it in any terminal with Node 18+.</p>
+        </div>
+        <code>node inventory.mjs --issues --text</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" style="padding-top:24px">
+  <div class="wrap">
+    <h2>Same model, same question.</h2>
+    <p class="lede">Answers from our test runs with Claude Opus 5, with and without the skill. Shortened and translated from Portuguese; nothing added.</p>
+
+    <div class="tabs" role="tablist" aria-label="Comparisons">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="p-list" id="t-list">What do I have?</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-new" id="t-new" tabindex="-1">Starting from zero</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-dup" id="t-dup" tabindex="-1">Too many skills</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-list" aria-labelledby="t-list">
+      <div class="prompt"><span>&gt; </span>which skills do I have installed? I forgot what half of them do</div>
+      <div class="vs">
+        <div class="side without">
+          <div class="side-head"><i class="ph ph-x-circle"></i>Without the skill</div>
+<pre>You have 10 skills in ~/.claude/skills:
+backend-development | General backend reference: APIs,
+  databases, auth, security, caching, microservices...
+...
+Notes:
+- grill-me and grilling do the same thing. You can delete
+  that folder and lose nothing.
+- This project has no skills of its own in .claude/skills/.</pre>
+          <ul>
+            <li>Missed find-skills, installed in another agent's folder</li>
+            <li>Missed 9 broken skill links, said the project had none</li>
+            <li>Suggested deleting a shortcut that is working as intended</li>
+          </ul>
+        </div>
+        <div class="side with">
+          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-manager</div>
+<pre>Engineering
+✓ diagnosing-bugs  diagnosis loop for hard bugs
+✓ grilling  stress-tests a plan with hard questions
+  ↳ grill-me  manual shortcut that runs grilling
+Database (this project only)
+• prisma-cli  Prisma CLI commands reference
+...
+✓ = this agent can load it   • = installed for another agent
+
+⚠ 18 issues, mostly Prisma links saved as text files.
+  Ask me for a health check to see how to fix them.</pre>
+          <ul>
+            <li>Scanned every agent folder, found all 20 skills</li>
+            <li>Flagged the broken installs without being asked</li>
+            <li>Explained the shortcut instead of calling it a duplicate</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-new" aria-labelledby="t-new" hidden>
+      <div class="prompt"><span>&gt; </span>I just installed skill-manager and have no other skills. I mostly do Node and TypeScript backend. What should I install?</div>
+      <div class="vs">
+        <div class="side without">
+          <div class="side-head"><i class="ph ph-x-circle"></i>Without the skill</div>
+<pre>Essentials (install now)
+backend-development, diagnosing-bugs, code-review
+
+Very useful (second wave)
+security-review, simplify, domain-modeling
+
+Optional
+claude-api, grilling, skill-creator
+
+Want the install commands for the first three?</pre>
+          <ul>
+            <li>Nine recommendations for someone starting out</li>
+            <li>Listed agent built-ins as if they were installable skills</li>
+            <li>No install commands and no word on checking third-party skills</li>
+          </ul>
+        </div>
+        <div class="side with">
+          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-manager</div>
+<pre>No skills found besides skill-manager.
+
+I won't give you a list from memory. Popularity and
+quality change fast, and find-skills tracks that.
+
+1. Install find-skills
+   npx skills add vercel-labs/skills --skill find-skills
+2. Search for your stack
+   npx skills find typescript
+   npx skills find nodejs backend
+3. Start with 3 to 5 skills you will actually use.
+
+Before installing, check the source, the skills.sh
+audits and any scripts the skill ships.</pre>
+          <ul>
+            <li>No invented or outdated recommendations</li>
+            <li>Commands you can run, a small starting set</li>
+            <li>A security reminder for third-party skills</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-dup" aria-labelledby="t-dup" hidden>
+      <div class="prompt"><span>&gt; </span>I have loads of frontend skills. Do I really need all of them?</div>
+      <div class="vs">
+        <div class="side without">
+          <div class="side-head"><i class="ph ph-x-circle"></i>Without the skill</div>
+<pre>frontend-design        Keep
+design-taste-frontend  Keep if you do redesigns
+frontend-ui            Remove
+ui-design              Remove
+frontend-master        Remove
+
+Suggestion: keep 2 and delete the other 3.
+Want me to remove the three redundant ones?</pre>
+          <ul>
+            <li>Right overlaps, but pushes deletion</li>
+            <li>Offers to delete files on your behalf</li>
+          </ul>
+        </div>
+        <div class="side with">
+          <div class="side-head"><i class="ph ph-check-circle"></i>With skill-manager</div>
+<pre>Duplicates: "build a nice UI"
+  frontend-design  keep, the most complete of the three
+  frontend-ui      worth reviewing, adds nothing new
+  ui-design        worth reviewing, same job
+
+Partial overlap
+  design-taste-frontend  keep if you do redesigns
+  frontend-master        keep, the only one covering state,
+                         routing and performance
+
+Near-duplicates use context and make the agent pick
+unpredictably. The decision to remove is yours.</pre>
+          <ul>
+            <li>Separates real duplicates from skills with a distinct job</li>
+            <li>Explains the cost, leaves the decision to you</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results" class="results">
+  <div class="wrap">
+    <h2>What changed in testing.</h2>
+    <p class="lede">Seven test prompts, each answered with and without the skill, checked against 5 to 11 written criteria.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="num">100% <small>vs 76%</small></div>
+        <p>Criteria met with the skill, compared with the same model on its own.</p>
+      </div>
+      <div class="stat">
+        <div class="num">+2.4k <small>tokens</small></div>
+        <p>Average extra tokens per answer, after trimming the skill and its script output.</p>
+      </div>
+      <div class="stat">
+        <div class="num">33s <small>vs 37s</small></div>
+        <p>Average time per answer. The read-only script replaces folder-by-folder reads.</p>
+      </div>
+    </div>
+
+    <div class="evals">
+      <div class="eval"><span class="name">List installed skills</span><span class="score">38% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">No skills installed yet</span><span class="score">57% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Too many frontend skills</span><span class="score">80% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Missing skill for a task</span><span class="score">83% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Explain one skill in depth</span><span class="score">86% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Health check, broken fixtures</span><span class="score">91% → <b>100%</b></span></div>
+      <div class="eval"><span class="name">Health check, real setup</span><span class="score">100% → <b>100%</b></span></div>
+    </div>
+
+    <div class="method">
+      <i class="ph ph-info"></i>
+      <div>
+        <strong>Read these numbers as indicative.</strong> One run per prompt per configuration, on Claude Opus 5 in Claude Code, graded by the skill's author. The model alone already does well when asked directly, as the health checks show. The skill's value is consistency: it scans every agent folder every time, does not invent skills, and does not push you to delete things. Prompts and fixtures are in the repo, so you can <a href="https://github.com/SWAGGATH4K1NG/skill-compass/tree/main/skills/skill-manager/evals">rerun them</a>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install once. Call it by name.</h2>
+    <div class="install-grid">
+      <div>
+        <div class="step">
+          <h3>Add the skill</h3>
+          <p>Uses the skills CLI, which installs into any supported agent.</p>
+          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager</code><button class="copy" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager">Copy</button></div>
+        </div>
+        <div class="step">
+          <h3>Make it trigger on its own</h3>
+          <p>Agents often answer "what skills do I have?" from memory. One line in your AGENTS.md or CLAUDE.md fixes that.</p>
+<pre class="snippet">## Skills
+When I ask about my agent skills (what I have, what one does,
+which to use, whether one is missing or redundant, or whether
+they are installed correctly), use the skill-manager skill.</pre>
+        </div>
+      </div>
+      <div>
+        <div class="step">
+          <h3>Or start it explicitly</h3>
+          <p>The most reliable way, in whichever agent you use.</p>
+          <div class="agents">
+            <div class="agent"><span class="who">Claude Code</span><code>/skill-manager</code></div>
+            <div class="agent"><span class="who">Codex</span><span><code>$skill-manager</code> <span class="note">or pick it from /skills</span></span></div>
+            <div class="agent"><span class="who">Cursor</span><code>/skill-manager</code></div>
+            <div class="agent"><span class="who">Windsurf</span><code>@skill-manager</code></div>
+            <div class="agent"><span class="who">OpenCode</span><span class="note">Mention it: "use the skill-manager skill"</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="principles" style="padding-top:24px">
+  <div class="wrap">
+    <h2>A guide, not another layer in the way.</h2>
+    <div class="rules">
+      <div class="rule"><i class="ph ph-arrow-bend-up-right"></i><div><h3>Recommends, then steps aside</h3><p>The skill you pick runs exactly as its author wrote it. Nothing is summarised, skipped or shortened.</p></div></div>
+      <div class="rule"><i class="ph ph-eye"></i><div><h3>Read-only</h3><p>It never installs, removes or edits anything. You get the command and run it yourself.</p></div></div>
+      <div class="rule"><i class="ph ph-shield-check"></i><div><h3>Treats skill files as data</h3><p>Instructions hidden in a third-party SKILL.md are flagged, never followed.</p></div></div>
+      <div class="rule"><i class="ph ph-plugs"></i><div><h3>No agent lock-in</h3><p>Follows the open Agent Skills format. No agent-specific paths or commands assumed.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>skill-compass · MIT License</span>
+    <span><a href="https://github.com/SWAGGATH4K1NG/skill-compass">GitHub</a> &nbsp; <a href="https://agentskills.io">Agent Skills format</a></span>
+  </div>
+</footer>
+
+<script>
+  // Tabs
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function select(tab) {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+  }
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        btn.textContent = 'Copied';
+      } catch {
+        btn.textContent = 'Select and copy';
+      }
+      setTimeout(() => (btn.textContent = 'Copy'), 1600);
+    });
+  });
+</script>
+</body>
+</html>
