@@ -236,8 +236,12 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .steps { display: grid; gap: 40px; }
 .step h3 { margin-bottom: 8px; }
 .step p { color: var(--muted); margin-bottom: 14px; }
+.step p code { font-size: 0.88em; color: var(--text); }
+.os-label { font-family: "Geist Mono", monospace; font-size: 0.78rem; color: var(--faint); margin: 16px 0 6px; }
+.step .os-note { font-size: 0.88rem; margin: 12px 0 0; }
 .codeline { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-line); border-radius: var(--r-control); padding: 10px 10px 10px 16px; font-size: 0.85rem; }
-.codeline code { overflow-x: auto; white-space: nowrap; }
+/* Commands wrap so the flags at the end (-g, --copy) are always visible. */
+.codeline code { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 pre.snippet { margin: 0; background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-line); border-radius: var(--r-control); padding: 16px; font-size: 0.82rem; white-space: pre-wrap; }
 .copy { flex-shrink: 0; font: inherit; font-size: 0.78rem; color: var(--code-faint); background: transparent; border: 1px solid color-mix(in srgb, var(--code-faint) 45%, transparent); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 .copy:hover { color: var(--code-text); }

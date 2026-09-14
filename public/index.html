@@ -67,7 +67,7 @@
     <div class="console">
       <div class="console-bar"><span class="console-q">&gt; <span id="demo-q">What skills do I have?</span></span><span class="console-note" id="demo-note">real output, shortened</span></div>
 <p id="demo-status" class="sr-only" aria-live="polite"></p>
-<pre id="demo-out"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
+<pre id="demo-out"><span class="c-cmd">$ node skills/skill-compass/scripts/inventory.mjs --text</span>
 Skills (20)
   code-review  <span class="c-dim">[claude-code]</span>
     Review the changes since a fixed point along two axes.
@@ -83,7 +83,7 @@ Skills (20)
     </div>
   </div>
 
-<template id="d-list"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
+<template id="d-list"><span class="c-cmd">$ node skills/skill-compass/scripts/inventory.mjs --text</span>
 Skills (20)
   code-review  <span class="c-dim">[claude-code]</span>
     Review the changes since a fixed point along two axes.
@@ -224,7 +224,7 @@ Database (this project only)
     </div>
 
     <div class="panel" role="tabpanel" id="p-new" aria-labelledby="t-new" hidden>
-      <div class="prompt"><span>&gt; </span>I just installed skill-manager and have no other skills. I mostly do Node and TypeScript backend. What should I install?</div>
+      <div class="prompt"><span>&gt; </span>I just installed skill-compass and have no other skills. I mostly do Node and TypeScript backend. What should I install?</div>
       <div class="vs">
         <div class="side without">
           <div class="side-head"><i class="ph ph-x-circle"></i>Without the skill</div>
@@ -246,7 +246,7 @@ Want the install commands for the first three?</pre>
         </div>
         <div class="side with">
           <div class="side-head"><i class="ph ph-check-circle"></i>With skill-compass</div>
-<pre>No skills found besides skill-manager.
+<pre>No skills found besides skill-compass.
 
 I won't give you a list from memory. Popularity and
 quality change fast, and find-skills tracks that.
@@ -375,7 +375,7 @@ unpredictably. <span class="c-ok">The decision to remove is yours.</span></pre>
       <div class="eval"><span class="name">Health check, real setup</span><span class="bar" style="--v:100%"></span><span class="score">100% → <b>100%</b></span></div>
     </div>
 
-    <p class="method reveal"><strong>Read these numbers as indicative.</strong> One run per prompt per configuration, on Claude Opus 5 in Claude Code, graded by me. The model alone already does well when asked directly, as the health checks show. The value is consistency: it scans every agent folder every time, does not invent skills, and does not push you to delete things. Prompts and fixtures are <a href="https://github.com/SWAGGATH4K1NG/skill-compass/tree/main/skills/skill-manager/evals">in the repo</a>. The fixture-based evals can be rerun anywhere. The others ran on my own setup.</p>
+    <p class="method reveal"><strong>Read these numbers as indicative.</strong> One run per prompt per configuration, on Claude Opus 5 in Claude Code, graded by me. The model alone already does well when asked directly, as the health checks show. The value is consistency: it scans every agent folder every time, does not invent skills, and does not push you to delete things. Prompts and fixtures are <a href="https://github.com/SWAGGATH4K1NG/skill-compass/tree/main/skills/skill-compass/evals">in the repo</a>. The fixture-based evals can be rerun anywhere. The others ran on my own setup.</p>
   </div>
 </section>
 
@@ -386,8 +386,12 @@ unpredictably. <span class="c-ok">The decision to remove is yours.</span></pre>
       <div class="steps stagger">
         <div class="step">
           <h3>Add the skill</h3>
-          <p>Uses the skills CLI, which installs into any supported agent.</p>
-          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-manager">Copy</button></div>
+          <p>Uses the skills CLI. <code>-g</code> installs it for all your projects, so it can see every skill you have.</p>
+          <div class="os-label">macOS and Linux</div>
+          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g">Copy</button></div>
+          <div class="os-label">Windows</div>
+          <div class="codeline"><code>npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g --copy</code><button class="copy" type="button" data-copy="npx skills add SWAGGATH4K1NG/skill-compass --skill skill-compass -g --copy">Copy</button></div>
+          <p class="os-note"><code>--copy</code> copies the files instead of linking them. On Windows, links can end up saved as plain text files that agents cannot load.</p>
         </div>
         <div class="step">
           <h3>Make it trigger on its own</h3>
@@ -395,7 +399,7 @@ unpredictably. <span class="c-ok">The decision to remove is yours.</span></pre>
 <pre class="snippet">## Skills
 When I ask about my agent skills (what I have, what one does,
 which to use, whether one is missing or redundant, or whether
-they are installed correctly), use the skill-manager skill.</pre>
+they are installed correctly), use the skill-compass skill.</pre>
         </div>
         <div class="step">
           <h3>Or run it without an agent</h3>
@@ -407,11 +411,11 @@ they are installed correctly), use the skill-manager skill.</pre>
         <h3>Start it explicitly</h3>
         <p>The most reliable way, in whichever agent you use.</p>
         <div class="agents">
-          <div class="agent"><span class="who">Claude Code</span><code>/skill-manager</code></div>
-          <div class="agent"><span class="who">Codex</span><span><code>$skill-manager</code> <span class="note">or pick it from /skills</span></span></div>
-          <div class="agent"><span class="who">Cursor</span><code>/skill-manager</code></div>
-          <div class="agent"><span class="who">Windsurf</span><code>@skill-manager</code></div>
-          <div class="agent"><span class="who">OpenCode</span><span class="note">Mention it: "use the skill-manager skill"</span></div>
+          <div class="agent"><span class="who">Claude Code</span><code>/skill-compass</code></div>
+          <div class="agent"><span class="who">Codex</span><span><code>$skill-compass</code> <span class="note">or pick it from /skills</span></span></div>
+          <div class="agent"><span class="who">Cursor</span><code>/skill-compass</code></div>
+          <div class="agent"><span class="who">Windsurf</span><code>@skill-compass</code></div>
+          <div class="agent"><span class="who">OpenCode</span><span class="note">Mention it: "use the skill-compass skill"</span></div>
         </div>
       </div>
     </div>
