@@ -61,7 +61,7 @@
   <div class="wrap demo">
     <div class="asks" role="group" aria-label="Try a question">
       <button class="ask-btn" type="button" aria-pressed="true" data-demo="d-list" data-note="real output, shortened">What skills do I have?</button>
-      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-issues" data-note="real output, shortened">Are my skills OK?</button>
+      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-issues" data-note="real answer, shortened and translated">Are my skills OK?</button>
       <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-oauth" data-note="real answer, shortened and translated">Which skills for Google OAuth?</button>
     </div>
     <div class="console">
@@ -96,15 +96,27 @@ Skills (20)
   prisma-cli  <span class="c-dim">[codex, cursor, opencode]</span>
     Prisma ORM CLI commands reference.
   <span class="c-dim">...</span></template>
-<template id="d-issues"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
-<span class="c-dim">...</span>
-Issues
-  <span class="c-err">ERROR symlink-as-text (18)</span>: a text file with a path instead of
-  a skill folder. The agent cannot load it.
-    ~/my-app/.claude/skills/prisma-cli -&gt; ~/my-app/.agents/skills/prisma-cli
-    <span class="c-dim">... and 17 more</span>
+<template id="d-issues">Skills check: 2 problems
 
-<span class="c-dim">Scanned: ~/.agents/skills, ~/.claude/skills, ~/my-app/.agents/skills, ...</span></template>
+<span class="c-err">✗ The 9 Prisma skills are text files, not folders</span>
+  prisma-cli, prisma-client-api, prisma-postgres, ...
+  Each file only holds a path like ../../.agents/skills/prisma-cli.
+  Git saved the symlink as text, which is common on Windows.
+  Claude Code never loads them, and this project uses Prisma.
+
+  Fix (pick one):
+  - Turn on Windows Developer Mode, run
+    <span class="c-cmd">git config core.symlinks true</span> and check the files out again
+  - Reinstall them as copies:
+    <span class="c-cmd">npx skills add &lt;prisma-skills-source&gt; --copy -a claude-code</span>
+
+<span class="c-ok">i</span> find-skills is only in ~/.agents/skills
+  Claude Code does not load it from there.
+  <span class="c-cmd">npx skills add vercel-labs/skills --skill find-skills -a claude-code</span>
+
+<span class="c-ok">✓</span> Everything else loads. grill-me is manual only, which is normal.
+
+<span class="c-dim">Nothing was changed.</span></template>
 <template id="d-oauth">Installed skills that help, in the order you would use them:
 
 Recommended
