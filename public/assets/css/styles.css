@@ -230,10 +230,11 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .method a { color: var(--accent); }
 
 /* Install */
-.install-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; margin-top: 56px; align-items: start; }
+.install-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; margin-top: 56px; align-items: stretch; }
 /* Grid items default to min-width:auto, so a long command would widen the column past the screen. */
 .install-grid > *, .steps > * { min-width: 0; }
-.steps { display: grid; gap: 40px; }
+/* Left column spreads its steps so the last one ends level with the agents table. */
+.steps { display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
 .step h3 { margin-bottom: 8px; }
 .step p { color: var(--muted); margin-bottom: 14px; }
 .step p code { font-size: 0.88em; color: var(--text); }
