@@ -17,7 +17,7 @@
     try { root.dataset.theme = localStorage.getItem('theme') || 'dark'; } catch (e) {}
   })();
 </script>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2410c'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='700' text-anchor='middle' fill='white'%3Esc%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23121214'/%3E%3Cg transform='rotate(35 16 16)'%3E%3Cpath d='M16 3l6 13H10z' fill='%23ff7a45'/%3E%3Cpath d='M10 16h12l-6 13z' fill='%238b8b94'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -31,14 +31,14 @@
 
 <nav class="top">
   <div class="wrap">
-    <a class="brand" href="#"><i class="ph ph-compass"></i>skill-compass</a>
+    <a class="brand" href="#"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l6.5 11h-13z" fill="currentColor"/><path d="M5.5 12h13L12 23z" style="fill: var(--faint)"/></svg>skill-compass</a>
     <div class="nav-links">
       <a class="hide-sm" href="#why">Why</a>
       <a class="hide-sm" href="#compare">Before and after</a>
       <a class="hide-sm" href="#results">Results</a>
-      <a class="hide-sm" href="#install">Install</a>
       <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to light theme"><i class="ph ph-sun"></i></button>
       <a class="icon-btn" href="https://github.com/SWAGGATH4K1NG/skill-compass" aria-label="GitHub repository"><i class="ph ph-github-logo"></i></a>
+      <a class="btn btn-primary btn-sm nav-install" href="#install">Install</a>
     </div>
   </div>
 </nav>
@@ -418,10 +418,30 @@ they are installed correctly), use the skill-manager skill.</pre>
 </section>
 
 <footer>
-  <div class="wrap">
-    <span>skill-compass · MIT License</span>
-    <span><a href="https://github.com/SWAGGATH4K1NG/skill-compass">GitHub</a> &nbsp; <a href="https://agentskills.io">Agent Skills format</a></span>
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="#"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l6.5 11h-13z" fill="currentColor"/><path d="M5.5 12h13L12 23z" style="fill: var(--faint)"/></svg>skill-compass</a>
+      <p>Know your agent skills.</p>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <div>
+        <h3>Project</h3>
+        <ul>
+          <li><a href="https://github.com/SWAGGATH4K1NG/skill-compass">GitHub</a></li>
+          <li><a href="https://github.com/SWAGGATH4K1NG/skill-compass/issues">Report an issue</a></li>
+          <li><a href="https://github.com/SWAGGATH4K1NG/skill-compass/blob/main/LICENSE">MIT License</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Related</h3>
+        <ul>
+          <li><a href="https://agentskills.io">Agent Skills format</a></li>
+          <li><a href="https://skills.sh">find-skills on skills.sh</a></li>
+        </ul>
+      </div>
+    </nav>
   </div>
+  <div class="wrap footer-bottom">Made by <a href="https://github.com/SWAGGATH4K1NG">SWAGGATH4K1NG</a></div>
 </footer>
 
 <script src="assets/js/script.js"></script>

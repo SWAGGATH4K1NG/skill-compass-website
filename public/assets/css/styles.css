@@ -18,6 +18,7 @@
   --code-faint: #8b8b94;
   --code-accent: #ff7a45;
   --code-line: #27272a;
+  --code-err: #fca5a5;
   /* Shape rule: controls 8px, containers 14px. */
   --r-control: 8px;
   --r-box: 14px;
@@ -25,20 +26,26 @@
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --line: #e4e4e7;
-  --text: #18181b;
-  --muted: #52525b;
-  --faint: #71717a;
+  /* Light: one off-white family (slightly warm to sit with the orange), no pure white, light code blocks. */
+  --bg: #f6f6f4;
+  --surface: #fcfcfb;
+  --surface-2: #eeeeeb;
+  --line: #e2e1dd;
+  --text: #1c1c1a;
+  --muted: #57534e;
+  --faint: #736d68;
   --accent: #c2410c;
-  --accent-soft: #fff4ed;
-  --accent-line: #fed7aa;
-  --on-accent: #ffffff;
-  --bad: #52525b;
-  --bad-soft: #f4f4f5;
-  --code-bg: #111113;
+  --accent-soft: #fbeee6;
+  --accent-line: #f2cdb5;
+  --on-accent: #fffaf5;
+  --bad: #57534e;
+  --bad-soft: #eeeeeb;
+  --code-bg: #efeeeb;
+  --code-text: #1f1f1d;
+  --code-faint: #6b6762;
+  --code-accent: #c2410c;
+  --code-line: #dedcd7;
+  --code-err: #b42318;
   color-scheme: light;
 }
 
@@ -67,14 +74,25 @@ p { margin: 0; }
 /* Nav */
 nav.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 nav.top .wrap { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.brand { font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 10px; }
-.brand i { color: var(--accent); font-size: 22px; }
+.brand { font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+/* Brand mark: a tilted compass needle, accent tip pointing north-east. */
+.mark { width: 26px; height: 26px; flex-shrink: 0; color: var(--accent); transform: rotate(35deg); }
+/* Active section: accent line under the nav link, sitting on the nav's bottom border. */
+.nav-links a[href^="#"] { position: relative; }
+.nav-links a[href^="#"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -21px; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s cubic-bezier(.16, 1, .3, 1); }
+.nav-links a.is-active { color: var(--text); }
+.nav-links a.is-active::after { transform: scaleX(1); }
 .nav-links { display: flex; gap: 24px; align-items: center; font-size: 0.93rem; color: var(--muted); }
 .nav-links a { text-decoration: none; }
-.nav-links a:hover { color: var(--text); }
+.nav-links a:not(.btn):hover { color: var(--text); }
+.btn.btn-sm { padding: 7px 14px; font-size: 0.88rem; }
+/* Nav Install appears once the hero buttons scroll out of view; always shown on small screens. */
+.nav-install { margin-left: 4px; transition: opacity .2s ease, transform .2s ease, visibility .2s; }
+.js .nav-install:not(.is-shown) { opacity: 0; visibility: hidden; transform: translateY(-4px); }
+@media (max-width: 760px) { .js .nav-install:not(.is-shown) { opacity: 1; visibility: visible; transform: none; } }
 .icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; margin: 0 -8px; border: 0; border-radius: var(--r-control); background: transparent; color: var(--muted); font-size: 20px; cursor: pointer; }
 .icon-btn:hover { color: var(--text); background: var(--surface-2); }
-@media (max-width: 760px) { .nav-links .hide-sm { display: none; } }
+@media (max-width: 760px) { .nav-links { gap: 14px; } .nav-links .hide-sm { display: none; } }
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: var(--r-control); font-weight: 500; font-size: 0.97rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background-color .15s ease, border-color .15s ease; }
@@ -106,7 +124,7 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 #demo-out::after { content: ""; display: inline-block; width: 0.55em; height: 1.1em; margin-left: 4px; vertical-align: text-bottom; background: var(--code-accent); }
 .c-cmd { color: var(--code-accent); }
 .c-dim { color: var(--code-faint); }
-.c-err { color: #fca5a5; }
+.c-err { color: var(--code-err); }
 .c-ok { color: var(--code-accent); }
 @media (max-width: 640px) { .console { margin-left: -24px; margin-right: -24px; border-radius: 0; border-left: 0; border-right: 0; } .console-note { display: none; } #demo-out { font-size: 0.78rem; padding: 18px 16px 24px; } }
 
@@ -167,7 +185,7 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .c-main .ask { flex: 0; color: var(--accent); }
 .c-code { background: var(--code-bg); border-color: var(--code-line); color: var(--code-text); }
 .c-code p { color: var(--code-faint); }
-.c-code code { margin-top: auto; padding-top: 16px; font-size: 0.82rem; color: #fca5a5; }
+.c-code code { margin-top: auto; padding-top: 16px; font-size: 0.82rem; color: var(--code-err); }
 .c-soft { background: var(--surface-2); }
 @media (max-width: 920px) { .bento { grid-template-columns: 1fr 1fr; } .c-main { grid-column: span 2; grid-row: auto; } .c-main h3 { margin-top: 24px; } }
 @media (max-width: 640px) { .bento { grid-template-columns: 1fr; } .c-main { grid-column: auto; } }
@@ -199,7 +217,7 @@ nav.top .wrap { height: 64px; display: flex; align-items: center; justify-conten
 .codeline { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-line); border-radius: var(--r-control); padding: 10px 10px 10px 16px; font-size: 0.85rem; }
 .codeline code { overflow-x: auto; white-space: nowrap; }
 pre.snippet { margin: 0; background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-line); border-radius: var(--r-control); padding: 16px; font-size: 0.82rem; white-space: pre-wrap; }
-.copy { flex-shrink: 0; font: inherit; font-size: 0.78rem; color: var(--code-faint); background: transparent; border: 1px solid #3f3f46; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.copy { flex-shrink: 0; font: inherit; font-size: 0.78rem; color: var(--code-faint); background: transparent; border: 1px solid color-mix(in srgb, var(--code-faint) 45%, transparent); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 .copy:hover { color: var(--code-text); }
 .agents { border: 1px solid var(--line); border-radius: var(--r-box); background: var(--surface); overflow: hidden; }
 .agent { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 15px 20px; align-items: baseline; }
@@ -218,14 +236,22 @@ pre.snippet { margin: 0; background: var(--code-bg); color: var(--code-text); bo
 @media (max-width: 560px) { .rules { grid-template-columns: 1fr; gap: 28px; } }
 
 /* Updates */
-.updates { text-align: center; background: radial-gradient(55% 75% at 50% 100%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%); }
+.updates { text-align: center; background: radial-gradient(42% 36% at 50% 56%,color-mix(in srgb, var(--accent) 13%, transparent), transparent 100%); }
 .updates h2 { margin: 0 auto; max-width: none; font-size: clamp(2.2rem, 5vw, 3.8rem); }
 .updates .lede { margin: 20px auto 36px; }
 
-footer { padding: 32px 0; color: var(--faint); font-size: 0.9rem; }
-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+footer { padding: 72px 0 36px; color: var(--muted); font-size: 0.93rem; }
 footer a { text-decoration: none; }
 footer a:hover { color: var(--text); }
+.footer-grid { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+.footer-brand .brand { color: var(--text); }
+.footer-brand p { color: var(--faint); margin-top: 10px; }
+.footer-links { display: flex; gap: 72px; }
+.footer-links h3 { font-size: 0.85rem; letter-spacing: 0; color: var(--text); margin-bottom: 14px; }
+.footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.footer-bottom { margin-top: 56px; color: var(--faint); font-size: 0.85rem; }
+.footer-bottom a { color: var(--muted); }
+@media (max-width: 560px) { .footer-links { gap: 48px; } }
 
 /* Entry motion: hero on load, sections as they enter view. */
 @media (prefers-reduced-motion: no-preference) {

@@ -43,6 +43,36 @@ function runDemo(btn) {
 demoBtns.forEach((btn) => btn.addEventListener('click', () => runDemo(btn)));
 if (!reduceMotion) setTimeout(() => runDemo(demoBtns[0]), 500);
 
+// Nav Install button: show it once the hero buttons have scrolled away
+const navInstall = document.querySelector('.nav-install');
+const heroCta = document.querySelector('.hero-cta');
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(([entry]) => {
+    navInstall.classList.toggle('is-shown', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+  }).observe(heroCta);
+} else {
+  navInstall.classList.add('is-shown');
+}
+
+// Nav: mark the link of the section crossing the middle of the viewport
+const navLinks = new Map(
+  [...document.querySelectorAll('.nav-links a[href^="#"]')].map((a) => [a.getAttribute('href').slice(1), a])
+);
+if ('IntersectionObserver' in window) {
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach((a, id) => {
+        const on = id === entry.target.id;
+        a.classList.toggle('is-active', on);
+        if (on) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+    });
+  }, { rootMargin: '-45% 0px -54% 0px' });
+  document.querySelectorAll('body > header, body > section, body > footer').forEach((el) => spy.observe(el));
+}
+
 // Tabs
 const tabs = [...document.querySelectorAll('[role="tab"]')];
 function select(tab) {
