@@ -19,11 +19,13 @@ const demoOut = document.getElementById('demo-out');
 const demoQ = document.getElementById('demo-q');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const demoStatus = document.getElementById('demo-status');
+const demoNote = document.getElementById('demo-note');
 let demoTimer;
 // Screen readers get the whole answer once it has finished printing, not line by line.
 function runDemo(btn, announce) {
   demoBtns.forEach((b) => b.setAttribute('aria-pressed', b === btn));
   demoQ.textContent = btn.textContent;
+  demoNote.textContent = btn.dataset.note;
   const template = document.getElementById(btn.dataset.demo);
   const lines = template.innerHTML.split('\n');
   const done = () => {

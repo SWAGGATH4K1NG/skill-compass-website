@@ -8,7 +8,13 @@
 <meta property="og:title" content="skill-compass: know your agent skills">
 <meta property="og:description" content="Lists your installed agent skills, recommends which one to use, spots duplicates and broken installs.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://skill-compass.pages.dev/">
+<meta property="og:image" content="https://skill-compass.pages.dev/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="skill-compass: Stop guessing which agent skill to use.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://skill-compass.pages.dev/">
 <meta name="color-scheme" content="dark light">
 <script>
   (function () {
@@ -54,12 +60,12 @@
 
   <div class="wrap demo">
     <div class="asks" role="group" aria-label="Try a question">
-      <button class="ask-btn" type="button" aria-pressed="true" data-demo="d-list">What skills do I have?</button>
-      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-issues">Are my skills OK?</button>
-      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-dup">Do I need all these?</button>
+      <button class="ask-btn" type="button" aria-pressed="true" data-demo="d-list" data-note="real output, shortened">What skills do I have?</button>
+      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-issues" data-note="real output, shortened">Are my skills OK?</button>
+      <button class="ask-btn" type="button" aria-pressed="false" data-demo="d-oauth" data-note="real answer, shortened and translated">Which skills for Google OAuth?</button>
     </div>
     <div class="console">
-      <div class="console-bar"><span class="console-q">&gt; <span id="demo-q">What skills do I have?</span></span><span class="console-note">real output, shortened</span></div>
+      <div class="console-bar"><span class="console-q">&gt; <span id="demo-q">What skills do I have?</span></span><span class="console-note" id="demo-note">real output, shortened</span></div>
 <p id="demo-status" class="sr-only" aria-live="polite"></p>
 <pre id="demo-out"><span class="c-cmd">$ node skills/skill-manager/scripts/inventory.mjs --text</span>
 Skills (20)
@@ -99,18 +105,23 @@ Issues
     <span class="c-dim">... and 17 more</span>
 
 <span class="c-dim">Scanned: ~/.agents/skills, ~/.claude/skills, ~/my-app/.agents/skills, ...</span></template>
-<template id="d-dup">Duplicates: "build a nice UI"
-  frontend-design  <span class="c-ok">keep</span>, the most complete of the three
-  frontend-ui      worth reviewing, adds nothing new
-  ui-design        worth reviewing, same job
+<template id="d-oauth">Installed skills that help, in the order you would use them:
 
-Partial overlap
-  design-taste-frontend  <span class="c-ok">keep</span> if you do redesigns
-  frontend-master        <span class="c-ok">keep</span>, the only one covering state,
-                         routing and performance
+Recommended
+  1. <span class="c-ok">grilling</span>             stress-test the plan first: tokens,
+                          session or JWT, linking Google accounts
+  2. <span class="c-ok">backend-development</span>  the main part: OAuth 2.1 code flow
+                          with PKCE, JWT, OWASP practices in Node
+  3. <span class="c-ok">security-review</span>      check the branch for state validation,
+                          redirect URIs and secrets
+  4. <span class="c-ok">code-review</span>          final review before the merge
 
-<span class="c-dim">Near-duplicates use context and make the agent pick</span>
-<span class="c-dim">unpredictably. The decision to remove is yours.</span></template>
+⚠ Missing: none of your skills specialise in OAuth or
+  Google Sign-In. backend-development only covers auth in general.
+
+  <span class="c-cmd">npx skills find oauth google</span>
+
+Want me to search for a Google OAuth skill?</template>
 </header>
 
 <section class="works" aria-label="Supported agents">
